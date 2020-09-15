@@ -1,1 +1,7 @@
-
+body {
+  font-weight: bold;
+  border: 3px solid #ff7355;
+  padding: 20px;
+  color: #daf7a3;
+  background-color: #90073f;
+}
