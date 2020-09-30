@@ -23,14 +23,21 @@ let pokemonRepository = (function () {
     list.push(pokemon);
   }
 
-  function myPokeList(pokemon) {
-    console.log(
-      pokemon.name +
-        " has a height of: " +
-        pokemon.height +
-        " and type of: " +
-        pokemon.type
-    );
+  function addListItem(pokemon) {
+    let list = document.querySelector(".pokemon-list");
+    let listItem = document.createElement("li");
+    let button = document.createElement("button");
+    button.innerText = pokemon.name;
+    button.classList.add("button");
+    listItem.appendChild(button);
+    list.appendChild(listItem);
+    button.addEventListener("click", function (event) {
+      showDetails(pokemon);
+    });
+  }
+
+  function showDetails(pokemon) {
+    console.log(pokemon.name);
   }
 
   function getAll() {
@@ -39,8 +46,8 @@ let pokemonRepository = (function () {
 
   return {
     add: add,
-    myPokeList: myPokeList,
     getAll: getAll,
+    addListItem: addListItem,
   };
 })();
 //add external pokemonList to IIFE pokemonRepository
@@ -62,5 +69,5 @@ pokemonRepository.add(newPokemon);
 console.log("my new pokemon list: ", allPokemon);
 //print list with item details with forEach function
 pokemonRepository.getAll().forEach(function (pokemon) {
-  pokemonRepository.myPokeList(pokemon);
+  pokemonRepository.addListItem(pokemon);
 });
