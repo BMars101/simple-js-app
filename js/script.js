@@ -1,26 +1,13 @@
-let pokemonList = [
-  {
-    name: "weedle",
-    height: 1,
-    type: ["bug", "poison"],
-  },
-  {
-    name: "ivysaur",
-    height: 3,
-    type: ["grass", "poison"],
-  },
-  {
-    name: "butterfree",
-    height: 3,
-    type: ["bug", "flying"],
-  },
-];
-
 let pokemonRepository = (function () {
-  let list = [];
+  let pokemonList = [];
+  let apiURL = "https://pokeapi.co/api/v2/pokemon/?limit=150";
 
   function add(pokemon) {
-    list.push(pokemon);
+    pokemonList.push(pokemon);
+  }
+
+  function getAll() {
+    return pokemonList;
   }
 
   function addListItem(pokemon) {
@@ -35,39 +22,64 @@ let pokemonRepository = (function () {
       showDetails(pokemon);
     });
   }
-
-  function showDetails(pokemon) {
-    console.log(pokemon.name);
+  //load pokemon api
+  function loadList() {
+    return fetch(apiURL)
+      .then(function (response) {
+        return response.json();
+      })
+      .then(function (json) {
+        json.results.forEach(function (item) {
+          let pokemon = {
+            name: item.name,
+            detailsUrl: item.url,
+          };
+          add(pokemon);
+          console.log(pokemon);
+        });
+      })
+      .catch(function (e) {
+        console.error(e);
+      });
   }
 
-  function getAll() {
-    return list;
+  //isolate and fetch the item details to display
+  function loadDetails(item) {
+    let url = item.detailsUrl;
+    return fetch(url)
+      .then(function (response) {
+        return response.json();
+      })
+      .then(function (details) {
+        //add details to item
+        item.imageUrl = details.sprites.front_default;
+        item.height = details.height;
+        item.types = details.types;
+      })
+      .catch(function (e) {
+        console.error(e);
+      });
+  }
+
+  function showDetails(pokemon) {
+    pokemonRepository.loadDetails(pokemon).then(function () {
+      console.log(pokemon.name);
+    });
   }
 
   return {
     add: add,
     getAll: getAll,
     addListItem: addListItem,
+    loadList: loadList,
+    loadDetails: loadDetails,
+    showDetails: showDetails,
   };
 })();
-//add external pokemonList to IIFE pokemonRepository
-pokemonList.forEach(function (pokemon) {
-  pokemonRepository.add(pokemon);
-});
-//create new variable and assign value of pokemonRepository
-let allPokemon = pokemonRepository.getAll();
-//display list
-console.log("my initial pokemon list: ", allPokemon);
-//create new pokemon item
-let newPokemon = {
-  name: "venusaur",
-  height: 6,
-  type: ["poison", "grass"],
-};
-//add new pokemon to list
-pokemonRepository.add(newPokemon);
-console.log("my new pokemon list: ", allPokemon);
+
 //print list with item details with forEach function
-pokemonRepository.getAll().forEach(function (pokemon) {
-  pokemonRepository.addListItem(pokemon);
+pokemonRepository.loadList().then(function () {
+  pokemonRepository.getAll().forEach(function (pokemon) {
+    pokemonRepository.addListItem(pokemon);
+  });
 });
