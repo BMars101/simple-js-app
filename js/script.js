@@ -1,6 +1,7 @@
 let pokemonRepository = (function () {
   let pokemonList = [];
   let apiURL = "https://pokeapi.co/api/v2/pokemon/?limit=150";
+  let modalContainer = document.querySelector("#modal-container");
 
   function add(pokemon) {
     pokemonList.push(pokemon);
@@ -61,9 +62,57 @@ let pokemonRepository = (function () {
       });
   }
 
-  function showDetails(item) {
-    pokemonRepository.loadDetails(item).then(function () {
-      console.log(item);
+  function showDetails(pokemon) {
+    pokemonRepository.loadDetails(pokemon).then(function () {
+      //console.log(item);
+      modalContainer.innerHTML = "";
+      let modal = document.createElement("div");
+      modal.classList.add("modal");
+
+      //create close button
+      let closeButton = document.createElement("button");
+      closeButton.classList.add("modal-close");
+      closeButton.innerText = "Close";
+      closeButton.addEventListener("click", hideModal);
+
+      //create title element
+      let titleElement = document.createElement("h1");
+      titleElement.innerText = pokemon.name;
+      //create content element
+      let contentElement = document.createElement("p");
+      contentElement.innerText = "height: " + pokemon.height;
+
+      //create image element
+      let pokemonImg = document.createElement("img");
+      pokemonImg.src = pokemon.imageUrl;
+
+      modal.appendChild(closeButton);
+      modal.appendChild(titleElement);
+      modal.appendChild(contentElement);
+      modal.appendChild(pokemonImg);
+      modalContainer.appendChild(modal);
+
+      modalContainer.classList.add("is-visible");
+    });
+
+    function hideModal() {
+      modalContainer.classList.remove("is-visible");
+    }
+
+    window.addEventListener("keydown", (e) => {
+      if (
+        e.key === "Escape" &&
+        modalContainer.classList.contains("is-visible")
+      ) {
+        hideModal();
+      }
+    });
+
+    modalContainer.addEventListener("click", (e) => {
+      let target = e.target;
+      if (target === modalContainer) {
+        hideModal();
+      }
     });
   }
 
